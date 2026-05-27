@@ -174,12 +174,12 @@ app.post("/api/generate-quiz", async (req, res) => {
   try {
     const prompt = `Hãy tạo chính xác 3 câu hỏi trắc nghiệm khách quan tương ứng cho 3 môn học sau: ${subjects.join(", ")}. Mỗi môn học tạo đúng 1 câu hỏi.
 Yêu cầu:
-1. Độ khó: PHẢI phù hợp chính xác tuyệt đối với trình độ học sinh Lớp ${grade} (Cấp lớp ${grade} ở Việt Nam). Các kiến thức và công thức sử dụng phải xoay quanh chương trình của Lớp ${grade}.
+1. Độ khó: PHẢI phù hợp chính xác tuyệt đối với trình độ học sinh Lớp ${grade} (Cấp lớp ${grade} ở Việt Nam). Các kiến thức và công thức sử dụng phải nằm trong chương trình SGK chính thức.
 2. Ngôn ngữ câu hỏi hoàn toàn bằng tiếng Việt chất lượng tốt.
 3. Mỗi câu hỏi gồm 4 lựa chọn (A, B, C, D) rõ ràng và ghi đúng cú pháp ví dụ: "A. <nội dung>", "B. <nội dung>"...
 4. Chọn đúng đáp án chính xác (chỉ ghi chữ cái đại diện như 'A', 'B', 'C', HOẶC 'D').
 5. Thêm phần giải thích ngắn gọn, dễ hiểu ở cấp độ Lớp ${grade} để học sinh hiểu cách làm.
-6. TUYỆT ĐỐI KHÔNG sử dụng ký tự hay định dạng LaTeX như $, $$, \\mathbb, \\mid, \\{, kí hiệu mũ ^ phức tạp dạng latex, v.v. Hãy ghi công thức toán học/hóa học dưới dạng chữ unicode thuần tiếng Việt, ký hiệu latin thường và các phép tính cơ bản dễ đọc trực tiếp trên trình duyệt (ví dụ: viết "x^2 - 5x + 6 = 0" thay vì "x^2 - 5x + 6 = 0" trong thẻ đô la latex; viết "x thuộc số thực R" thay vì "x thuộc \\mathbb{R}", viết "H2SO4" thay vì có mã latex...). Đề bài phải hoàn toàn hiển thị đẹp mắt và rõ ràng mà không cần bất kỳ thư viện hỗ trợ render LaTeX nào.
+6. TUYỆT ĐỐI KHÔNG sử dụng ký tự hay định dạng LaTeX như $, $$, \\mathbb, \\mid, \\{, kí hiệu mũ ^ phức tạp dạng latex, v.v. Hãy ghi công thức toán học/hóa học bằng plain text rõ ràng.
 
 Yêu cầu trả về đúng định dạng JSON Array chứa đúng 3 đối tượng khớp với 3 môn học có các thuộc tính chính xác sau:
 - "subject": tên môn học gốc tương ứng từ danh sách (${subjects.join(", ")})
@@ -189,7 +189,7 @@ Yêu cầu trả về đúng định dạng JSON Array chứa đúng 3 đối t�
 - "explanation": chuỗi giải thích tại sao đáp án đó đúng.`;
 
     const response = await client.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-2.0-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -252,7 +252,7 @@ app.post("/api/generate-custom-question", async (req, res) => {
   const getFallback = () => {
     if (typeValue === "abcd") {
       return {
-        prompt: `Câu hỏi trắc nghiệm tự động ${subjectValue ? `môn ${subjectValue} ` : ""}về [${topicValue}] dành cho học sinh Lớp ${gradeValue}? (Vui lòng cấu hình API Key để tạo chất lượng)`,
+        prompt: `Câu hỏi trắc nghiệm tự động ${subjectValue ? `môn ${subjectValue} ` : ""}về [${topicValue}] dành cho học sinh Lớp ${gradeValue}? (Vui lòng cấu hình API Key để sử dụng tính năng này đầy đủ)`,
         options: [
           "A. Đáp án tham khảo đúng",
           "B. Phương án nhiễu 1",
@@ -263,7 +263,7 @@ app.post("/api/generate-custom-question", async (req, res) => {
       };
     } else {
       return {
-        prompt: `Câu hỏi tự luận/điền từ ${subjectValue ? `môn ${subjectValue} ` : ""}về [${topicValue}] dành cho học sinh Lớp ${gradeValue}? (Vui lòng cấu hình API Key để tạo chất lượng)`,
+        prompt: `Câu hỏi tự luận/điền từ ${subjectValue ? `môn ${subjectValue} ` : ""}về [${topicValue}] dành cho học sinh Lớp ${gradeValue}? (Vui lòng cấu hình API Key để sử dụng tính năng này đầy đủ)`,
         fillAnswers: ["mẫu"]
       };
     }
@@ -274,17 +274,19 @@ app.post("/api/generate-custom-question", async (req, res) => {
   }
 
   try {
-    const prompt = `Hãy đóng vai giáo viên, tạo ra đúng 1 câu hỏi có độ khó phù hợp hoàn toàn cho học sinh Lớp ${gradeValue} (Việt Nam) ${subjectValue ? `môn "${subjectValue}" ` : ""}về chủ đề: "${topicValue}".
+    const prompt = `Hãy đóng vai giáo viên, tạo ra đúng 1 câu hỏi có độ khó phù hợp hoàn toàn cho học sinh Lớp ${gradeValue} (Việt Nam) ${subjectValue ? `môn "${subjectValue}"` : "chủ đề chung"}.
+Chủ đề/nội dung câu hỏi: ${topicValue}
 Thể loại câu hỏi: ${typeValue === "abcd" ? "Trắc nghiệm 4 lựa chọn (A, B, C, D)" : typeValue === "essay" ? "Tự luận ngắn" : "Điền vào chỗ trống"}.
 
 Yêu cầu định dạng JSON trả về dạng đối tượng gồm:
-- "prompt": nội dung đề câu hỏi bằng tiếng Việt rõ ràng, bám sát trình độ Lớp ${gradeValue}. TUYỆT ĐỐI KHÔNG sử dụng ký tự hay định dạng LaTeX như $, $$, \\mathbb, \\mid, \\{, kí hiệu mũ ^ phức tạp dạng latex, v.v. Hãy ghi tất cả công thức toán hay hóa dưới dạng chữ unicode thuần tiếng Việt, ký hiệu latin thường và các phép tính cơ bản dễ đọc trực tiếp trên trình duyệt (ví dụ: viết "x^2 - 5x + 6 = 0" thay vì "x^2 - 5x + 6 = 0" trong thư mục đô la latex; viết "x thuộc số thực R" thay vì "x thuộc \\mathbb{R}", viết "H2SO4" thay vì có mã latex...). Đề bài phải hoàn toàn hiển thị đẹp mắt và rõ ràng mà không cần bất kỳ thư viện hỗ trợ render LaTeX nào.
-${typeValue === "abcd" ? `- "options": mảng gồm đúng 4 chuỗi chứa các lựa chọn dạng ["A. <nội dung>", "B. <nội dung>", "C. <nội dung>", "D. <nội dung>"]\n- "correctOption": chuỗi chứa duy nhất một chữ cái 'A', 'B', 'C' hoặc 'D'` : ""}
+- "prompt": nội dung đề câu hỏi bằng tiếng Việt rõ ràng, bám sát trình độ Lớp ${gradeValue}. TUYỆT ĐỐI KHÔNG sử dụng ký tự hay định dạng LaTeX như $, $$, \\mathbb.
+${typeValue === "abcd" ? `- "options": mảng gồm đúng 4 chuỗi chứa các lựa chọn dạng ["A. <nội dung>", "B. <nội dung>", "C. <nội dung>", "D. <nội dung>"]\n- "correctOption": ký tự duy nhất 'A', 'B', 'C' hoặc 'D'` : ""}
+${typeValue === "essay" ? `- "modelAnswer": chuỗi mẫu trả lời tự luận` : ""}
 ${typeValue === "fill_in_the_blank" ? `- "fillAnswers": mảng các kết quả mẫu có thể chấp nhận (chuỗi viết thường)` : ""}
 `;
 
     const response = await client.models.generateContent({
-      model: "gemini-3.5-flash",
+      model: "gemini-2.0-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -297,6 +299,7 @@ ${typeValue === "fill_in_the_blank" ? `- "fillAnswers": mảng các kết quả 
               items: { type: Type.STRING }
             },
             correctOption: { type: Type.STRING },
+            modelAnswer: { type: Type.STRING },
             fillAnswers: {
               type: Type.ARRAY,
               items: { type: Type.STRING }
