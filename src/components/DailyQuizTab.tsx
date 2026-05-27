@@ -180,19 +180,24 @@ export default function DailyQuizTab({ currentUser, language, onRewardXp, onSave
           grade: selectedGrade
         }),
       });
+      
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status}`);
+      }
+      
       const data = await res.json();
-      if (data.success && data.quiz) {
+      if (data.success && data.quiz && Array.isArray(data.quiz) && data.quiz.length > 0) {
         setQuizzes(data.quiz);
         setSelectedAnswers({});
         setIsSubmitted(false);
         setScores({});
         setIsConfiguringSubjects(false);
       } else {
-        throw new Error("Could not fetch valid STEM Quiz data from endpoint");
+        throw new Error("Invalid response format from server");
       }
     } catch (err) {
-      console.error(err);
-      setErrorMsg(language === "vi" ? "Lỗi kết nối hoặc yêu cầu tạo câu hỏi của dịch vụ AI thất bại." : "Failed to connect or retrieve from backend AI service.");
+      console.error("Quiz generation error:", err);
+      setErrorMsg(language === "vi" ? "Lỗi kết nối hoặc yêu cầu tạo câu hỏi của dịch vụ AI thất bại. Vui lòng thử lại." : "Failed to generate quiz. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -409,16 +414,16 @@ export default function DailyQuizTab({ currentUser, language, onRewardXp, onSave
             <GraduationCap className="w-6 h-6 text-orange-500" />
             <div>
               <h3 className="font-extrabold text-neutral-900 dark:text-neutral-100">
-                {language === "vi" ? "Tốt nhất từ AI - Tạo đề bài của riêng bạn" : "AI Tailored STEM Quiz Generator"}
+                {language === "vi" ? "Tạo đề bài AI - Chọn môn học" : "AI Quiz Generator - Select Subjects"}
               </h3>
               <p className="text-xs text-neutral-400">
-                {language === "vi" ? "Chọn lớp học và tổ hợp 3 môn học thử thách để AI Gemini tạo câu hỏi phù hợp." : "Select your grade and combination of 3 subjects to initiate the personalized AI-generated challenge."}
+                {language === "vi" ? "Chọn lớp học và tổ hợp 3 môn học để AI tạo câu hỏi phù hợp." : "Select your grade and any 3 subjects for AI-generated questions."}
               </p>
             </div>
           </div>
 
           {/* Step 1: Selection of Grade Level */}
-          <div className="space-y-4 p-5 bg-gradient-to-br from-orange-500/5 to-amber-500/5 dark:from-orange-950/5 dark:to-amber-950/5 rounded-2xl border border-orange-100 dark:border-orange-950/45 shadow-sm">
+          <div className="space-y-4 p-5 bg-gradient-to-br from-orange-500/5 to-amber-500/5 dark:from-orange-950/5 dark:to-amber-950/5 rounded-2xl border border-orange-100 dark:border-orange-950/40">
             <div className="flex items-center gap-2">
               <span className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[10px] font-extrabold text-white">1</span>
               <label className="block text-[11px] font-black uppercase text-orange-600 dark:text-orange-400 tracking-wider">
@@ -443,7 +448,7 @@ export default function DailyQuizTab({ currentUser, language, onRewardXp, onSave
                         className={`py-2.5 px-1 rounded-xl text-center transition-all duration-200 cursor-pointer select-none flex flex-col justify-center items-center gap-0.5 border ${
                           isSelected
                             ? "border-orange-500 bg-orange-500 text-white shadow-md shadow-orange-500/20 font-black scale-[1.03]"
-                            : "border-neutral-200 dark:border-neutral-800 hover:border-orange-300 dark:hover:border-orange-900/60 hover:bg-orange-500/5 dark:hover:bg-orange-950/10 bg-white dark:bg-neutral-950 text-neutral-700 dark:text-neutral-300"
+                            : "border-neutral-200 dark:border-neutral-800 hover:border-orange-300 dark:hover:border-orange-900/60 hover:bg-orange-500/5 dark:hover:bg-orange-950/10 bg-white dark:bg-neutral-900/40"
                         }`}
                       >
                         <span className="text-sm font-extrabold leading-none">{g.value}</span>
@@ -472,7 +477,7 @@ export default function DailyQuizTab({ currentUser, language, onRewardXp, onSave
                         className={`py-2.5 px-1 rounded-xl text-center transition-all duration-200 cursor-pointer select-none flex flex-col justify-center items-center gap-0.5 border ${
                           isSelected
                             ? "border-orange-500 bg-orange-500 text-white shadow-md shadow-orange-500/20 font-black scale-[1.03]"
-                            : "border-neutral-200 dark:border-neutral-800 hover:border-orange-300 dark:hover:border-orange-900/60 hover:bg-orange-500/5 dark:hover:bg-orange-950/10 bg-white dark:bg-neutral-950 text-neutral-700 dark:text-neutral-300"
+                            : "border-neutral-200 dark:border-neutral-800 hover:border-orange-300 dark:hover:border-orange-900/60 hover:bg-orange-500/5 dark:hover:bg-orange-950/10 bg-white dark:bg-neutral-900/40"
                         }`}
                       >
                         <span className="text-sm font-extrabold leading-none">{g.value}</span>
@@ -488,8 +493,8 @@ export default function DailyQuizTab({ currentUser, language, onRewardXp, onSave
 
             <p className="text-[10px] text-neutral-450 dark:text-neutral-500 italic leading-snug">
               {language === "vi" 
-                ? "💡 AI Gemini 3.5 sẽ tự động điều chỉnh kiến thức, công thức và mức độ khó phù hợp với nội dung của chương trình lớp " + selectedGrade + " hiện hành."
-                : "💡 AI Gemini 3.5 will customize facts, formula scopes, and cognitive depth specifically to correspond to Grade " + selectedGrade + " curricula."}
+                ? "💡 AI sẽ tự động điều chỉnh kiến thức, công thức và mức độ khó phù hợp với chương trình Lớp " + selectedGrade + "."
+                : "💡 AI will customize difficulty and curriculum to match Grade " + selectedGrade + " level."}
             </p>
           </div>
 
@@ -499,7 +504,7 @@ export default function DailyQuizTab({ currentUser, language, onRewardXp, onSave
               {language === "vi" ? "Bước 2: Chọn tổ hợp chính xác 3 môn học" : "Step 2: Check Exactly 3 Study Categories"}
             </label>
             <p className="text-[11px] text-neutral-450">
-              {language === "vi" ? "Xây dựng tổ hợp riêng biệt để thử sức nhận 240 XP hôm nay:" : "Build your custom focus subject combination to seek +240 XP today:"}
+              {language === "vi" ? "Xây dựng tổ hợp riêng biệt để thử sức nhận 240 XP hôm nay:" : "Build your custom focus subject combination to earn +240 XP today:"}
             </p>
           </div>
 
@@ -560,7 +565,7 @@ export default function DailyQuizTab({ currentUser, language, onRewardXp, onSave
       {loading ? (
         <div className="text-center py-20 bg-white dark:bg-neutral-900 border border-neutral-150 dark:border-neutral-800 rounded-2xl shadow-sm">
           <div className="animate-spin rounded-full h-10 w-10 border-4 border-orange-500 border-t-transparent mx-auto mb-4" />
-          <p className="text-sm text-neutral-500 font-bold">{language === "vi" ? "Trí tuệ nhân tạo Gemini 3.5 đang soạn thảo đề bài riêng biệt..." : "Gemini 3.5 is drafting unique questions for you..."}</p>
+          <p className="text-sm text-neutral-500 font-bold">{language === "vi" ? "AI đang soạn thảo đề bài riêng biệt..." : "AI is generating your unique quiz..."}</p>
         </div>
       ) : errorMsg ? (
         <div className="p-6 bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-900/50 text-center">
@@ -623,7 +628,7 @@ export default function DailyQuizTab({ currentUser, language, onRewardXp, onSave
                       const isSelected = chosen === optChar;
                       const isActualAnswer = quiz.correctAnswer === optChar;
 
-                      let buttonStyle = "border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/60 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800";
+                      let buttonStyle = "border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/60 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-900";
 
                       if (!submitted && isSelected) {
                         buttonStyle = "border-orange-500 bg-orange-50/50 dark:bg-orange-950/30 text-orange-700 dark:text-neutral-100 font-bold ring-1 ring-orange-500";
@@ -663,7 +668,7 @@ export default function DailyQuizTab({ currentUser, language, onRewardXp, onSave
                   </div>
 
                   {submitted && (
-                    <div className="mt-4 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-150 dark:border-neutral-800 text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
+                    <div className="mt-4 p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/40 border border-neutral-150 dark:border-neutral-800 text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed space-y-1">
                       <span className="font-extrabold text-blue-600 dark:text-blue-400 block mb-1">
                         {language === "vi" ? "GIẢI THÍCH:" : "EXPLANATION:"}
                       </span>
@@ -702,7 +707,7 @@ export default function DailyQuizTab({ currentUser, language, onRewardXp, onSave
                       setIsSubmitted(false);
                       setScores({});
                     }}
-                    className="px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-xl shadow-md transition transform hover:scale-105 inline-flex items-center gap-2 cursor-pointer select-none uppercase tracking-wider text-xs"
+                    className="px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black rounded-xl shadow-md transition transform hover:scale-105 inline-flex items-center gap-2 cursor-pointer select-none"
                   >
                     <Zap className="w-4 h-4 fill-current text-yellow-300" />
                     {language === "vi" ? "Tiếp tục tạo thử thách mới 🚀" : "Create Another Challenge 🚀"}
