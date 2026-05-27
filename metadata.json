@@ -1,0 +1,6 @@
+{
+  "name": "EduWeb",
+  "description": "Hệ thống quản lý lớp học và bài tập học tập tích hợp Trí tuệ nhân tạo (AI) giúp tạo chủ đề, giao và chấm bài dễ dàng hơn cùng hệ thống tăng cấp XP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

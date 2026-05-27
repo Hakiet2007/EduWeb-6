@@ -1,0 +1,31 @@
+[
+  {
+    "id": "dev_user_01",
+    "username": "kietxx_173",
+    "fullName": "kietxx_173",
+    "role": "dev",
+    "level": 25,
+    "xp": 0,
+    "email": "kietxx_173@dev.local",
+    "password": "24122014@",
+    "lastActiveDate": "2026-05-26",
+    "quizSolvedCountToday": 12,
+    "lastQuizSolvedDate": "2026-05-26",
+    "quizCooldownUntil": "2026-05-25T20:02:39.464Z",
+    "streakCount": 2,
+    "updatedAt": 1779787551389
+  },
+  {
+    "id": "user_1779628486295",
+    "username": "quangdat_332",
+    "fullName": "Dương Quang Đạt",
+    "role": "student",
+    "level": 1,
+    "xp": 20,
+    "email": "haanhkiet957@gmail.com",
+    "password": "24122014@",
+    "banned": false,
+    "warnedUntil": null,
+    "warningType": null
+  }
+]

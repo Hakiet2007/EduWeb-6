@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Premium, vibrant, eye-safe high-fidelity gradient matching the brand's blue-indigo identity -->
+    <linearGradient id="bookGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6" />
+      <stop offset="40%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#4f46e5" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Symmetrical Open Book Outer Outline with Elegant Rounded Corners and Transparent background -->
+  <g fill="none" stroke="url(#bookGradient)" stroke-width="32" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left open page with beautiful rounded outer corners -->
+    <path d="M 72 112 H 208 C 236 112 248 128 256 160 V 384 C 248 352 236 344 208 344 H 72 C 54 344 48 334 48 316 V 140 C 48 122 54 112 72 112 Z" />
+    
+    <!-- Right open page with beautiful rounded outer corners -->
+    <path d="M 440 112 H 304 C 276 112 264 128 256 160 V 384 C 264 352 276 344 304 344 H 440 C 458 344 464 334 464 316 V 140 C 464 122 458 112 440 112 Z" />
+    
+    <!-- Center Spine Line -->
+    <path d="M 256 160 V 384" stroke-width="24" />
+  </g>
+</svg>
